@@ -2,7 +2,7 @@
 
 Repositório com sínteses de aprendizados do AWS Summit, em HTML, publicadas via GitHub Pages.
 
-🚀 **[Ver demonstração](https://hal9000Rafa.github.io/insights-aws-summit-site/)**
+🚀 **[Ver demonstração](https://hal9000Rafa.github.io/insights-aws-summit-site.git/)**
 
 
 ## Estrutura
