@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insight 01 — Chat que Investiga Incidentes Sozinho (AWS Summit)</title>
+<style>
+  :root{
+    --bg:#0b1120;
+    --card:#121a2e;
+    --card-border:#22304d;
+    --accent:#ff9900;
+    --accent2:#5b8def;
+    --text:#e7ecf5;
+    --text-dim:#9aa7c2;
+    --good:#3ddc97;
+    --biz:#ffd166;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#0b1120,#0e1830 40%,#0b1120);
+    color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    line-height:1.55;
+    padding:0 0 60px;
+  }
+  header{ padding:48px 24px 28px; max-width:980px; margin:0 auto; }
+  .tag{
+    display:inline-block; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--accent); padding:4px 10px; border-radius:999px; margin-bottom:16px;
+  }
+  h1{ font-size:clamp(26px,4.2vw,38px); margin:0 0 10px; line-height:1.18; }
+  .subtitle{color:var(--text-dim); font-size:16px; margin:0; max-width:640px;}
+  .source{font-size:13px; color:var(--text-dim); margin-top:12px;}
+  .source a{color:var(--accent2);}
+  main{max-width:980px; margin:0 auto; padding:0 24px;}
+  section{margin-top:56px;}
+  h2{ font-size:23px; border-left:4px solid var(--accent); padding-left:12px; margin-bottom:6px; }
+  .section-lede{color:var(--text-dim); font-size:14px; margin:0 0 22px;}
+
+  /* 4 perguntas */
+  .grid4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+  .card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:22px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .card .icon{font-size:26px;}
+  .card h3{font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent2); margin:0;}
+  .card .tech{font-size:15px; font-weight:600; margin:0; color:var(--text);}
+  .card .biz{
+    font-size:13px; color:var(--biz); background:rgba(255,209,102,.08); border-left:2px solid var(--biz);
+    padding:8px 10px; border-radius:6px; margin:0;
+  }
+  .card .biz b{color:var(--biz);}
+
+  /* fluxo timeline */
+  .timeline{ display:flex; flex-wrap:wrap; gap:0; align-items:stretch; }
+  .move{
+    flex:1 1 260px; background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    padding:20px; position:relative;
+  }
+  .move .num{
+    font-size:34px; font-weight:800; opacity:.18; position:absolute; top:10px; right:16px;
+  }
+  .move .emoji{font-size:24px;}
+  .move h4{margin:8px 0 6px; font-size:16px;}
+  .move p{margin:0; font-size:13.5px; color:var(--text-dim);}
+  .move.a{border-top:3px solid var(--accent2);}
+  .move.b{border-top:3px solid var(--accent);}
+  .move.c{border-top:3px solid var(--good);}
+  .connector{
+    display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:22px;
+    flex:0 0 40px;
+  }
+  @media(max-width:700px){ .connector{ transform:rotate(90deg); flex-basis:20px;} }
+
+  .callout{
+    background:rgba(61,220,151,.08); border:1px solid var(--good); border-radius:14px; padding:20px 22px; font-size:14.5px;
+  }
+  .callout h3{color:var(--good); margin-top:0;}
+
+  /* itau flow */
+  .itau-flow{ display:flex; flex-direction:column; gap:0; }
+  .node{
+    display:flex; gap:16px; align-items:flex-start; background:var(--card); border:1px solid var(--card-border);
+    border-radius:14px; padding:18px 20px; margin-bottom:4px;
+  }
+  .node .emoji{font-size:26px; flex:0 0 auto;}
+  .node .content strong{display:block; font-size:15px; margin-bottom:3px;}
+  .node .content span{font-size:13.5px; color:var(--text-dim);}
+  .link-down{ text-align:center; color:var(--text-dim); font-size:20px; padding:4px 0; }
+  .loop-tag{
+    display:inline-block; margin-top:10px; font-size:12px; color:var(--good); border:1px dashed var(--good);
+    border-radius:999px; padding:3px 10px;
+  }
+
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; margin-top:8px; }
+  th,td{ text-align:left; padding:10px 12px; border-bottom:1px solid var(--card-border); vertical-align:top; }
+  th{color:var(--accent2); font-size:12px; text-transform:uppercase; letter-spacing:.03em;}
+  .pill{
+    display:inline-block; background:rgba(93,140,239,.15); color:var(--accent2); border:1px solid var(--accent2);
+    border-radius:6px; padding:2px 8px; font-size:12px;
+  }
+
+  footer{ max-width:980px; margin:60px auto 0; padding:0 24px; color:var(--text-dim); font-size:12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag">AWS Summit 2026 · Insight 01</span>
+  <h1>Um chat que investiga o incidente sozinho antes de te chamar</h1>
+  <p class="subtitle">Case oficial da AWS: agentes de IA que conversam com você no Slack, lembram de casos parecidos e vasculham o cluster em tempo real — sem alguém sênior precisar estar de plantão.</p>
+  <p class="source">Fonte: <a href="https://github.com/aws-solutions-library-samples/eks-troubleshooting-agentic-ai-chatops" target="_blank">aws-solutions-library-samples/eks-troubleshooting-agentic-ai-chatops</a></p>
+</header>
+
+<main>
+
+  <section>
+    <h2>O case em 4 perguntas</h2>
+    <p class="section-lede">Resposta técnica direto ao ponto + a versão "explica pra minha mãe" embaixo de cada uma.</p>
+    <div class="grid4">
+      <div class="card">
+        <div class="icon">🧩</div>
+        <h3>O quê</h3>
+        <p class="tech">Multiagentes (Strands) dentro do EKS: um Orquestrador, um agente de Memória (RAG vetorial) e um Especialista com acesso real ao cluster via MCP.</p>
+        <p class="biz"><b>Em bom português:</b> um "colega virtual" que já chega sabendo o histórico e olhando o sistema ao vivo, em vez de só chutar.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🎯</div>
+        <h3>Pra quê</h3>
+        <p class="tech">Cortar o tempo de diagnóstico quando logs, métricas e eventos estão espalhados em ferramentas diferentes.</p>
+        <p class="biz"><b>Em bom português:</b> achar a causa do problema em minutos, não em horas de gente pulando de tela em tela.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔥</div>
+        <h3>Por quê</h3>
+        <p class="tech">Hoje resolver incidente = cruzar 3 coisas na cabeça de uma pessoa sênior: estado atual, histórico e experiência.</p>
+        <p class="biz"><b>Em bom português:</b> se essa pessoa está de férias ou dormindo, o time trava.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🚀</div>
+        <h3>Benefício</h3>
+        <p class="tech">Menos MTTR, conhecimento sai da cabeça de poucos e vai pra uma base viva, tudo documentado e auditável no canal.</p>
+        <p class="biz"><b>Em bom português:</b> qualquer pessoa do time resolve como se fosse a mais experiente — e cada caso deixa o próximo mais rápido.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Como o fluxo funciona</h2>
+    <p class="section-lede">Três movimentos, não dez passos decorados.</p>
+    <div class="timeline">
+      <div class="move a">
+        <span class="num">1</span>
+        <div class="emoji">💬</div>
+        <h4>Pergunta chega</h4>
+        <p>Alguém manda a dúvida no Slack. Um classificador rápido e barato decide: "isso é K8s de verdade ou é outra coisa?"</p>
+      </div>
+      <div class="connector">→</div>
+      <div class="move b">
+        <span class="num">2</span>
+        <div class="emoji">🔎</div>
+        <h4>Investigação dupla</h4>
+        <p>Ao mesmo tempo: a Memória busca casos parecidos já resolvidos, e o Especialista entra no cluster de verdade e coleta o estado atual.</p>
+      </div>
+      <div class="connector">→</div>
+      <div class="move c">
+        <span class="num">3</span>
+        <div class="emoji">✅</div>
+        <h4>Resposta que aprende</h4>
+        <p>Claude cruza histórico + estado real, devolve a recomendação no chat — e o caso resolvido vira conhecimento novo pra base.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="callout">
+      <h3>💡 O padrão que vale a pena carregar (não é sobre Kubernetes)</h3>
+      <p>O que faz esse case funcionar não é "rodar em K8s" — é: <strong>um orquestrador que decide e guarda contexto</strong>, <strong>agentes especialistas plugáveis</strong> (um busca memória, outro busca dado real), <strong>uma base que aprende a cada caso</strong>, e <strong>um canal humano</strong> que recebe a resposta e vira registro auditável. Isso é 100% portável pra fora do mundo Kubernetes.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Como isso chega no Itaú</h2>
+    <p class="section-lede">Trocando Slack + EKS por algo que já existe no nosso dia a dia: Teams + um assistente conversacional plugado numa base de conhecimento.</p>
+
+    <div class="itau-flow">
+      <div class="node">
+        <div class="emoji">🚨</div>
+        <div class="content">
+          <strong>Incidente acontece</strong>
+          <span>O time é notificado direto no Teams — sem precisar ficar monitorando dashboard.</span>
+        </div>
+      </div>
+      <div class="link-down">↓</div>
+      <div class="node">
+        <div class="emoji">🤖</div>
+        <div class="content">
+          <strong>Iris entra na conversa</strong>
+          <span>A pessoa abre o chat com a Iris, que já consulta a Knowledge Base e traz contexto de incidentes parecidos antes mesmo de você perguntar.</span>
+        </div>
+      </div>
+      <div class="link-down">↓</div>
+      <div class="node">
+        <div class="emoji">🗣️</div>
+        <div class="content">
+          <strong>Vocês resolvem juntos</strong>
+          <span>Você conversa com a Iris sobre o melhor caminho, decide a ação e aplica a correção — ela participa, não decide sozinha.</span>
+        </div>
+      </div>
+      <div class="link-down">↓</div>
+      <div class="node">
+        <div class="emoji">🔁</div>
+        <div class="content">
+          <strong>A base aprende</strong>
+          <span>O caso resolvido é salvo na Knowledge Base, e o próximo incidente parecido já chega com esse contexto pronto.</span>
+          <div class="loop-tag">↻ ciclo se retroalimenta</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Por baixo do capô (a parte técnica)</h2>
+    <table>
+      <tr>
+        <th>Peça do case original</th>
+        <th>Papel</th>
+        <th>Equivalente Itaú</th>
+      </tr>
+      <tr>
+        <td><span class="pill">Orchestrator Agent</span></td>
+        <td>Decide, orquestra os sub-agentes, mantém o contexto do caso</td>
+        <td><strong>Step Function</strong> — orquestra o fluxo com estado e histórico de execução visível</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Specialist Agent + MCP</span></td>
+        <td>Ferramenta que busca dado real e atualizado de um sistema vivo</td>
+        <td><strong>Lambda especializada</strong>, acionada como um "tool" pela Step Function</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Memory Agent + S3 Vectors</span></td>
+        <td>Busca semântica em casos históricos</td>
+        <td><strong>Bedrock Knowledge Base</strong> por trás da Iris</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Slack (Socket Mode)</span></td>
+        <td>Notificação e conversa em tempo real</td>
+        <td><strong>Teams</strong> como interface + <strong>SNS</strong> pra notificar múltiplos times em paralelo</td>
+      </tr>
+      <tr>
+        <td><span class="pill">Fila de eventos</span></td>
+        <td>Desacopla a chegada do incidente do processamento</td>
+        <td><strong>SQS</strong> — entrada de eventos antes de acionar a orquestração</td>
+      </tr>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  Insight 01 de N — repositório de aprendizados do AWS Summit. Próximo: AgentCore (Runtime, Memory, Gateway, Identity, Policy, Observability, Evaluations) e Amazon DevOps Agent.
+</footer>
+
+</body>
+</html>

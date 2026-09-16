@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insight 02 — 30 Anos de COBOL Modernizados com Agentes (AWS Summit)</title>
+<style>
+  :root{
+    --bg:#0b1120; --card:#121a2e; --card-border:#22304d;
+    --accent:#ff9900; --accent2:#5b8def; --text:#e7ecf5; --text-dim:#9aa7c2;
+    --good:#3ddc97; --biz:#ffd166; --bad:#ef6f6f;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:linear-gradient(180deg,#0b1120,#0e1830 40%,#0b1120);
+    color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; line-height:1.55; padding:0 0 60px; }
+  header{ padding:48px 24px 28px; max-width:980px; margin:0 auto; }
+  .tag{ display:inline-block; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--accent); padding:4px 10px; border-radius:999px; margin-bottom:16px; }
+  h1{ font-size:clamp(26px,4.2vw,38px); margin:0 0 10px; line-height:1.18; }
+  .subtitle{color:var(--text-dim); font-size:16px; margin:0; max-width:680px;}
+  .source{font-size:13px; color:var(--text-dim); margin-top:12px;}
+  main{max-width:980px; margin:0 auto; padding:0 24px;}
+  section{margin-top:56px;}
+  h2{ font-size:23px; border-left:4px solid var(--accent); padding-left:12px; margin-bottom:6px; }
+  .section-lede{color:var(--text-dim); font-size:14px; margin:0 0 22px;}
+
+  .grid4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+  .card{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:22px;
+    display:flex; flex-direction:column; gap:12px; }
+  .card .icon{font-size:26px;}
+  .card h3{font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--accent2); margin:0;}
+  .card .tech{font-size:15px; font-weight:600; margin:0; color:var(--text);}
+  .card .biz{ font-size:13px; color:var(--biz); background:rgba(255,209,102,.08); border-left:2px solid var(--biz);
+    padding:8px 10px; border-radius:6px; margin:0; }
+  .card .biz b{color:var(--biz);}
+
+  .timeline{ display:flex; flex-wrap:wrap; gap:0; align-items:stretch; }
+  .move{ flex:1 1 210px; background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    padding:18px; position:relative; }
+  .move .num{ font-size:30px; font-weight:800; opacity:.18; position:absolute; top:8px; right:14px; }
+  .move .emoji{font-size:22px;}
+  .move h4{margin:8px 0 6px; font-size:15px;}
+  .move p{margin:0 0 8px; font-size:13px; color:var(--text-dim);}
+  .move .owners{font-size:11px; color:var(--accent2);}
+  .move.a{border-top:3px solid var(--accent2);}
+  .move.b{border-top:3px solid var(--accent);}
+  .move.c{border-top:3px solid var(--good);}
+  .move.d{border-top:3px solid #c98bf0;}
+  .connector{ display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:20px; flex:0 0 32px; }
+  @media(max-width:760px){ .connector{ transform:rotate(90deg); flex-basis:16px;} }
+
+  .callout{ background:rgba(61,220,151,.08); border:1px solid var(--good); border-radius:14px; padding:20px 22px; font-size:14.5px; }
+  .callout h3{color:var(--good); margin-top:0;}
+  .callout.warn{ background:rgba(255,209,102,.08); border-color:var(--biz); }
+  .callout.warn h3{color:var(--biz);}
+
+  .compare{ display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:stretch; }
+  .compare .side{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:20px; }
+  .compare .side.old{border-top:3px solid var(--text-dim);}
+  .compare .side.new{border-top:3px solid var(--good);}
+  .compare .year{font-size:28px; font-weight:800;}
+  .compare .label{font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;}
+  .compare ul{margin:10px 0 0; padding-left:18px; font-size:13.5px; color:var(--text-dim);}
+  .compare .vs{display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--accent);}
+  @media(max-width:700px){ .compare{grid-template-columns:1fr;} .compare .vs{transform:rotate(90deg); padding:6px 0;} }
+
+  .gov-flow{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .gov-step{ background:var(--card); border:1px solid var(--card-border); border-radius:10px; padding:10px 14px; font-size:13px; flex:1 1 150px; text-align:center; }
+  .gov-arrow{align-self:center; color:var(--text-dim);}
+  .evidence{ background:#0e1626; border:1px dashed var(--accent2); border-radius:12px; padding:16px 20px; font-size:13.5px; }
+  .evidence .step-mini{ display:flex; align-items:center; gap:8px; margin:6px 0; }
+  .evidence .x{color:var(--bad); font-weight:700;}
+  .evidence .ok{color:var(--good); font-weight:700;}
+
+  .triage{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+  .triage .col{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:20px; }
+  .triage .col h4{margin:0 0 4px;}
+  .triage .col .sub{font-size:12px; color:var(--accent2); margin-bottom:10px;}
+  .triage ul{margin:0; padding-left:18px; font-size:13px; color:var(--text-dim);}
+
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; }
+  .stat{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:20px; text-align:center; }
+  .stat .num{ font-size:32px; font-weight:800; color:var(--good); }
+  .stat .num.bad{color:var(--bad);}
+  .stat .desc{font-size:12.5px; color:var(--text-dim); margin-top:4px;}
+
+  footer{ max-width:980px; margin:60px auto 0; padding:0 24px; color:var(--text-dim); font-size:12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="tag">AWS Summit 2026 · Insight 02</span>
+  <h1>30 anos de COBOL virando aplicação web — com agentes fazendo o trabalho pesado</h1>
+  <p class="subtitle">Case da Bradesco Seguros: como um sistema core de Previdência de 1993 (mainframe, +50 milhões de linhas de código) está sendo modernizado com AWS Transform + Kiro, agentes especializados e aprovação humana obrigatória.</p>
+  <p class="source">Fonte: apresentação AWS Summit São Paulo, sessão Bradesco Seguros — Canal 27</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>O case em 4 perguntas</h2>
+    <p class="section-lede">Resposta técnica direto ao ponto + a versão "explica pra minha mãe" embaixo de cada uma.</p>
+    <div class="grid4">
+      <div class="card">
+        <div class="icon">🏛️</div>
+        <h3>O quê</h3>
+        <p class="tech">Modernização do sistema core de Previdência da Bradesco Seguros usando AWS Transform (descoberta + geração de spec) e Kiro (motor de geração de código com IA), com agentes especializados fazendo cada etapa e humanos aprovando o que entra em produção.</p>
+        <p class="biz"><b>Em bom português:</b> pegaram um sistema de 30 anos escrito numa linguagem que quase ninguém mais aprende (COBOL) e usaram IA pra reescrever com supervisão de gente de verdade.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🎯</div>
+        <h3>Pra quê</h3>
+        <p class="tech">Sair de um ecossistema de +40 sistemas mainframe, +30 mil programas COBOL e +40 mil JCLs sem travar a operação nem perder as regras de negócio acumuladas em três décadas.</p>
+        <p class="biz"><b>Em bom português:</b> trocar o motor do avião em pleno voo, sem ninguém sentir turbulência.</p>
+      </div>
+      <div class="card">
+        <div class="icon">⏳</div>
+        <h3>Por quê</h3>
+        <p class="tech">Reescrever manualmente um sistema desse tamanho levaria anos, e boa parte do conhecimento de negócio só existe dentro do código legado — ninguém documentou tudo.</p>
+        <p class="biz"><b>Em bom português:</b> as regras da empresa estão "presas" dentro de um código que quase ninguém mais entende de cabeça.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🚀</div>
+        <h3>Benefício</h3>
+        <p class="tech">83% de redução no tempo de entrega (15-22 semanas → 2-3 semanas na primeira jornada), 94% de cobertura de testes automatizados e zero issues no SonarQube.</p>
+        <p class="biz"><b>Em bom português:</b> o que levaria meio ano ficou pronto em semanas — e saiu mais testado do que muita coisa feita do zero.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="callout warn">
+      <h3>📏 O tamanho do desafio, pra dar dimensão</h3>
+      <p>Um legado construído ao longo de <strong>30 anos</strong> (primeira proposta processada em 1993): <strong>+40 sistemas mainframe</strong>, <strong>+80 mil arquivos</strong>, <strong>+50 milhões de linhas de código</strong>, <strong>+30 mil programas COBOL</strong> e <strong>+40 mil JCLs</strong> — conhecimento distribuído entre sistemas, pessoas, processos manuais e automações paralelas.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Como o fluxo funciona — da descoberta à produção</h2>
+    <p class="section-lede">Quatro fases, cada uma com um "dono" diferente (negócio, TI, arquitetura), todas com os agentes como copiloto.</p>
+    <div class="timeline">
+      <div class="move a">
+        <span class="num">1</span>
+        <div class="emoji">🔍</div>
+        <h4>Definir e entender</h4>
+        <p>Mapeia a jornada prioritária, o fluxo IMS, dependências e o código que realmente importa.</p>
+        <div class="owners">Negócio · TI · AWS Transform</div>
+      </div>
+      <div class="connector">→</div>
+      <div class="move b">
+        <span class="num">2</span>
+        <div class="emoji">📝</div>
+        <h4>Extrair e especificar</h4>
+        <p>Regras de negócio, classificação, user stories e cenários — validados pelo próprio negócio, não só pela TI.</p>
+        <div class="owners">TI · AWS Transform · Kiro · Negócio</div>
+      </div>
+      <div class="connector">→</div>
+      <div class="move c">
+        <span class="num">3</span>
+        <div class="emoji">🏗️</div>
+        <h4>Desenhar e desenvolver</h4>
+        <p>Arquitetura, aplicação web, APIs REST, integração via filas MQ — o código novo nasce aqui.</p>
+        <div class="owners">Arquitetura · Infraestrutura · TI · Kiro</div>
+      </div>
+      <div class="connector">→</div>
+      <div class="move d">
+        <span class="num">4</span>
+        <div class="emoji">✅</div>
+        <h4>Testar e implantar</h4>
+        <p>Testes e segurança, code review automatizado, homologação e produção.</p>
+        <div class="owners">TI · Negócio · Kiro</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>O antes e depois, num exemplo real</h2>
+    <p class="section-lede">Primeira onda modernizada: a jornada de Consulta de Cobranças.</p>
+    <div class="compare">
+      <div class="side old">
+        <div class="year">1993</div>
+        <div class="label">Jornada legada</div>
+        <ul>
+          <li>7 telas IMS/MFS</li>
+          <li>Navegação por PFKEYs (tecla de função, sem mouse)</li>
+          <li>26 tabelas DB2</li>
+          <li>COBOL + Assembler</li>
+        </ul>
+      </div>
+      <div class="vs">→</div>
+      <div class="side new">
+        <div class="year">2026</div>
+        <div class="label">Jornada modernizada</div>
+        <ul>
+          <li>Aplicação web</li>
+          <li>4 endpoints REST</li>
+          <li>Java 25 + Spring Boot 4.1</li>
+          <li>Integração via IBM MQ</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>A parte que mais importa: quem escreve não é quem aprova</h2>
+    <p class="section-lede">Agentes especializados fazem o trabalho, mas nenhum código entra em produção sem revisão independente — de outro agente e, no fim, de uma pessoa.</p>
+    <div class="gov-flow">
+      <div class="gov-step">🔎 Entender o legado<br><small>reverse engineering, navegação IMS</small></div>
+      <div class="gov-arrow">→</div>
+      <div class="gov-step">👀 Revisar<br><small>reviewer independente de navegação</small></div>
+      <div class="gov-arrow">→</div>
+      <div class="gov-step">📐 Especificar e controlar<br><small>US Writer + US Reviewer</small></div>
+      <div class="gov-arrow">→</div>
+      <div class="gov-step">💻 Construir e revisar código<br><small>COBOL Writer + COBOL Reviewer</small></div>
+    </div>
+    <div class="evidence">
+      <strong>Evidência real (caso US-RIS-005):</strong>
+      <div class="step-mini">1️⃣ O agente identificou lógica de código morto no mainframe</div>
+      <div class="step-mini">2️⃣ <span class="x">✕ Avanço bloqueado</span> pelo reviewer</div>
+      <div class="step-mini">3️⃣ User story reescrita com a decisão de negócio correta</div>
+      <div class="step-mini">4️⃣ <span class="ok">✓ Aprovada</span> pelo reviewer, de forma auditável</div>
+      <p style="margin:10px 0 0; color:var(--biz);"><strong>A aprovação do agente NÃO substitui a revisão humana no processo.</strong></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Modernizar não significa mover tudo</h2>
+    <p class="section-lede">Um dos aprendizados mais maduros do case: nem todo pedaço do legado merece o mesmo tratamento.</p>
+    <div class="triage">
+      <div class="col">
+        <h4>🌐 Online</h4>
+        <div class="sub">Antecipar valor</div>
+        <ul>
+          <li>Cobranças já em produção</li>
+          <li>4 endpoints REST</li>
+          <li>≥80% cobertura JaCoCo</li>
+          <li>0 apontamentos Checkmarx</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h4>📦 Batch</h4>
+        <div class="sub">Reduzir antes de modernizar</div>
+        <ul>
+          <li>~23 mil JCLs inativos identificados</li>
+          <li>Mais de 2 ciclos anuais sem execução</li>
+          <li>Retirada iniciada em homologação</li>
+          <li>Backup e restauração preservados</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h4>🗄️ Dados</h4>
+        <div class="sub">Domínios antes da migração</div>
+        <ul>
+          <li>+1.300 tabelas DB2</li>
+          <li>Redundâncias e ownership em análise</li>
+          <li>Tecnologias de destino por domínio</li>
+          <li>CDC e reconciliação após o modelo</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Resultados alcançados</h2>
+    <div class="stats">
+      <div class="stat"><div class="num">83%</div><div class="desc">redução no tempo (15-22 semanas → 2-3 semanas)</div></div>
+      <div class="stat"><div class="num">94%</div><div class="desc">cobertura de testes automatizados</div></div>
+      <div class="stat"><div class="num bad">0</div><div class="desc">issues identificadas pelo SonarQube</div></div>
+      <div class="stat"><div class="num">+600 mil</div><div class="desc">linhas com dependências e regras mapeadas em &lt; 1 mês</div></div>
+      <div class="stat"><div class="num">11</div><div class="desc">agentes especializados na esteira</div></div>
+      <div class="stat"><div class="num">15</div><div class="desc">hooks de qualidade e segurança</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Próximos passos do case</h2>
+    <div class="grid4" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+      <div class="card">
+        <div class="icon">🔄</div>
+        <h3>Esteira Agêntica</h3>
+        <p class="tech">Cobrir todo o ciclo de vida da modernização, não só uma jornada isolada.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📈</div>
+        <h3>Escalar</h3>
+        <p class="tech">Expandir o que funcionou pra outros sistemas — de projeto pontual pra capacidade reutilizável.</p>
+      </div>
+    </div>
+    <p class="section-lede" style="margin-top:18px;">Como a própria apresentação resumiu: <em>"o que começou como a modernização de uma única jornada evoluiu para a construção de uma capacidade reutilizável de modernização, capaz de se transformar em uma plataforma escalável de evolução tecnológica."</em></p>
+  </section>
+
+  <section>
+    <div class="callout">
+      <h3>💡 O que fica pra reflexão</h3>
+      <p>O ganho não vem só da IA gerando código rápido — vem do <strong>desenho de governança</strong>: agente que escreve nunca é o mesmo que aprova, cada mudança tem evidência auditável, e decisão de negócio sensível sempre passa por gente. É esse padrão de "velocidade com trava humana" que vale carregar pra qualquer modernização de sistema legado crítico, dentro ou fora do Itaú.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Insight 02 de N — repositório de aprendizados do AWS Summit. Próximo: AgentCore (Runtime, Memory, Gateway, Identity, Policy, Observability, Evaluations) e Amazon DevOps Agent.
+</footer>
+
+</body>
+</html>
